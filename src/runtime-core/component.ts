@@ -183,7 +183,7 @@ function createRenderContext(instance: ComponentInstance) {
 /**
  * 初始化 props
  */
-function initProps(instance: ComponentInstance, rawProps: Record<string, any> | null) {
+export function initProps(instance: ComponentInstance, rawProps: Record<string, any> | null) {
   const props: Record<string, any> = {}
   const attrs: Record<string, any> = {}
 

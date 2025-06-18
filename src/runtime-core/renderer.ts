@@ -1,7 +1,7 @@
 import { VNode, ShapeFlags, Text, Fragment, isSameVNodeType } from './vnode'
 import { effect } from '../reactivity'
 import { callHook, LifecycleHooks } from './apiLifecycle'
-import { createComponentInstance, setupComponent, ComponentInstance } from './component'
+import { createComponentInstance, setupComponent, ComponentInstance, initProps } from './component'
 
 // 渲染器选项接口
 export interface RendererOptions {
@@ -259,7 +259,11 @@ export function createRenderer(options: RendererOptions) {
    */
   function updateComponent(n1: VNode, n2: VNode) {
     const instance = (n2.component = n1.component!)
-    // 简化处理：直接触发重新渲染
+    // 更新组件的 vnode 引用
+    instance.vnode = n2
+    // 更新 props
+    initProps(instance, n2.props)
+    // 触发重新渲染
     instance.update()
   }
 
@@ -277,8 +281,8 @@ export function createRenderer(options: RendererOptions) {
         // 调用 beforeMount 钩子
         callHook(instance, LifecycleHooks.BEFORE_MOUNT)
 
-        // 挂载
-        const subTree = instance.render!()
+        // 挂载 - 绑定正确的 this 上下文
+        const subTree = instance.render!.call(instance.ctx)
         instance.subTree = subTree
         patch(null, subTree, container, anchor)
         vnode.el = subTree.el
@@ -290,8 +294,8 @@ export function createRenderer(options: RendererOptions) {
         // 调用 beforeUpdate 钩子
         callHook(instance, LifecycleHooks.BEFORE_UPDATE)
 
-        // 更新
-        const nextTree = instance.render!()
+        // 更新 - 绑定正确的 this 上下文
+        const nextTree = instance.render!.call(instance.ctx)
         const prevTree = instance.subTree
         instance.subTree = nextTree
         patch(prevTree, nextTree, container, anchor)
