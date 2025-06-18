@@ -1,0 +1,50 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 但是不要忽略示例环境变量文件
+!.env.example
+
+# 忽略音频文件
+*.mp3
+*.wav
+*.ogg
+*.m4a
+
+# 忽略构建产物
+release
+
+# 忽略缓存文件
+.cache
+.temp
+.tmp
+
+# 忽略覆盖率报告
+coverage
+.nyc_output

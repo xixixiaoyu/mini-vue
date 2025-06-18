@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Vue 示例</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .example {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .example h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      button {
+        padding: 8px 16px;
+        margin: 5px;
+        border: none;
+        border-radius: 4px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .counter {
+        font-size: 18px;
+        margin: 10px 0;
+      }
+      .todo-item {
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .completed {
+        text-decoration: line-through;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Mini Vue 示例</h1>
+
+    <div class="example">
+      <h3>1. 基础计数器</h3>
+      <div id="counter-app"></div>
+    </div>
+
+    <div class="example">
+      <h3>2. 计算属性示例</h3>
+      <div id="computed-app"></div>
+    </div>
+
+    <div class="example">
+      <h3>3. 组件通信示例</h3>
+      <div id="component-app"></div>
+    </div>
+
+    <script type="module">
+      import { createApp, reactive, ref, computed, h, onMounted, onUpdated } from './index.esm.js'
+
+      // 示例 1: 基础计数器
+      const CounterApp = {
+        setup() {
+          const count = ref(0)
+
+          const increment = () => {
+            count.value++
+          }
+
+          const decrement = () => {
+            count.value--
+          }
+
+          onMounted(() => {
+            console.log('Counter mounted!')
+          })
+
+          onUpdated(() => {
+            console.log('Counter updated!')
+          })
+
+          return {
+            count,
+            increment,
+            decrement,
+          }
+        },
+        render() {
+          return h('div', [
+            h('div', { class: 'counter' }, `计数: ${this.count}`),
+            h('button', { onClick: this.increment }, '+1'),
+            h('button', { onClick: this.decrement }, '-1'),
+          ])
+        },
+      }
+
+      // 示例 2: 计算属性
+      const ComputedApp = {
+        setup() {
+          const state = reactive({
+            firstName: 'Zhang',
+            lastName: 'San',
+          })
+
+          const fullName = computed(() => {
+            return `${state.firstName} ${state.lastName}`
+          })
+
+          const updateFirstName = () => {
+            state.firstName = state.firstName === 'Zhang' ? 'Li' : 'Zhang'
+          }
+
+          const updateLastName = () => {
+            state.lastName = state.lastName === 'San' ? 'Si' : 'San'
+          }
+
+          return {
+            state,
+            fullName,
+            updateFirstName,
+            updateLastName,
+          }
+        },
+        render() {
+          return h('div', [
+            h('p', `姓名: ${this.fullName}`),
+            h('p', [
+              '姓: ',
+              h('input', {
+                value: this.state.firstName,
+                onInput: (e) => (this.state.firstName = e.target.value),
+              }),
+            ]),
+            h('p', [
+              '名: ',
+              h('input', {
+                value: this.state.lastName,
+                onInput: (e) => (this.state.lastName = e.target.value),
+              }),
+            ]),
+            h('button', { onClick: this.updateFirstName }, '切换姓'),
+            h('button', { onClick: this.updateLastName }, '切换名'),
+          ])
+        },
+      }
+
+      // 示例 3: 组件通信
+      const ChildComponent = {
+        props: ['message', 'count'],
+        setup(props, { emit }) {
+          const handleClick = () => {
+            emit('childClick', '来自子组件的消息')
+          }
+
+          return {
+            handleClick,
+          }
+        },
+        render() {
+          return h('div', [
+            h('p', `父组件传递的消息: ${this.message}`),
+            h('p', `父组件传递的计数: ${this.count}`),
+            h('button', { onClick: this.handleClick }, '点击我向父组件发送消息'),
+          ])
+        },
+      }
+
+      const ComponentApp = {
+        setup() {
+          const message = ref('Hello from parent!')
+          const count = ref(0)
+          const childMessage = ref('')
+
+          const increment = () => {
+            count.value++
+          }
+
+          const handleChildClick = (msg) => {
+            childMessage.value = msg
+          }
+
+          return {
+            message,
+            count,
+            childMessage,
+            increment,
+            handleChildClick,
+          }
+        },
+        render() {
+          return h('div', [
+            h('button', { onClick: this.increment }, '增加计数'),
+            h('p', `子组件消息: ${this.childMessage}`),
+            h(ChildComponent, {
+              message: this.message,
+              count: this.count,
+              onChildClick: this.handleChildClick,
+            }),
+          ])
+        },
+      }
+
+      // 挂载应用
+      createApp(CounterApp).mount('#counter-app')
+      createApp(ComputedApp).mount('#computed-app')
+      createApp(ComponentApp).mount('#component-app')
+    </script>
+  </body>
+</html>
